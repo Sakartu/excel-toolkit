@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 """
 Usage:
-exgrep TERM [options] EXCEL_FILE...
+exgrep [options] TERM EXCEL_FILE...
 
 Options:
 TERM        The term to grep for. Can be any valid (python) regular expression.
