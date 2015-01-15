@@ -7,6 +7,7 @@ exgrep TERM [options] EXCEL_FILE...
 Options:
 TERM        The term to grep for. Can be any valid (python) regular expression.
 EXCEL_FILE  The list of files to search through
+-c COL      Only search in the column specified by COL.
 -o          Only output the matched part
 """
 import re
@@ -24,7 +25,9 @@ def main():
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
         for rownum in range(sheet.nrows):
-            for v in sheet.row_values(rownum):
+            for idx, v in enumerate(sheet.row_values(rownum)):
+                if args['-c'] and idx != int(args['-c']):
+                    continue
                 s = p.search(str(v))
                 if s:
                     if args['-o']:
