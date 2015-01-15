@@ -46,7 +46,6 @@ def parse_args(args):
     return args
 
 
-
 def check_row(args, p, sheet, rownum):
     """
     Check a row for the presence of pattern p.
