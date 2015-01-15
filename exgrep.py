@@ -22,15 +22,10 @@ def main():
     for f in args['EXCEL_FILE']:
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
-        i = 0
-        for row in sheet.row_values(i):
-            for v in row:
-                if p.search(v):
-                    print(row)
-            i += 1
-
-
-
+        for rownum in range(sheet.nrows):
+            for v in sheet.row_values(rownum):
+                if p.search(str(v)):
+                    print(sheet.row_values(rownum))
 
 
 if __name__ == '__main__':
