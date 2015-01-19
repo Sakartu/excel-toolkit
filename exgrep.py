@@ -11,6 +11,7 @@ EXCEL_FILE  The list of files to search through
 -r ROW      Only search in the row specified by ROW
 -o          Only output the matched part
 """
+import os
 import re
 import string
 
@@ -29,11 +30,11 @@ def main():
         sheet = workbook.sheet_by_index(0)
 
         if args['-c']:
-            check_row(args, p, sheet, int(args['-c']))
+            check_row(args, f, p, sheet, int(args['-c']))
             continue
 
         for rownum in range(sheet.nrows):
-            check_row(args, p, sheet, rownum)
+            check_row(args, f, p, sheet, rownum)
 
 
 def parse_args(args):
@@ -46,7 +47,7 @@ def parse_args(args):
     return args
 
 
-def check_row(args, p, sheet, rownum):
+def check_row(args, f, p, sheet, rownum):
     """
     Check a row for the presence of pattern p.
     """
@@ -55,10 +56,14 @@ def check_row(args, p, sheet, rownum):
             continue
         s = p.search(str(v))
         if s:
+            to_print = ''
+            if len(args['EXCEL_FILE']) > 1:
+                to_print += os.path.basename(f) + ': '
             if args['-o']:
-                print(s.group(0))
+                to_print += str(s.group(0))
             else:
-                print(sheet.row_values(rownum))
+                to_print += str(sheet.row_values(rownum))
+            print(to_print)
 
 
 if __name__ == '__main__':
