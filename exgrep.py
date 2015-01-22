@@ -10,6 +10,7 @@ EXCEL_FILE  The list of files to search through
 -c COL      Only search in the column specified by COL (either a 1-based number or a letter)
 -r ROW      Only search in the row specified by ROW
 -o          Only output the matched part
+-i          Perform a case-insensitive match
 """
 import os
 import re
@@ -24,7 +25,10 @@ __author__ = 'peter'
 def main():
     args = docopt(__doc__)
     args = parse_args(args)
-    p = re.compile(args['TERM'], re.UNICODE)
+    flags = re.UNICODE
+    if args['-i']:
+        flags |= re.IGNORECASE
+    p = re.compile(args['TERM'], flags)
     for f in args['EXCEL_FILE']:
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
