@@ -62,7 +62,8 @@ def check_row(args, f, p, sheet, rownum):
         if s:
             to_print = ''
             if len(args['EXCEL_FILE']) > 1:
-                to_print += os.path.basename(f) + ': '
+                to_print += os.path.basename(f)
+            to_print += ':{0}: '.format(rownum + 1)
             if args['-o']:
                 to_print += str(s.group(0))
             else:
