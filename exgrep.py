@@ -17,6 +17,8 @@ import re
 import string
 
 from docopt import docopt
+import signal
+import sys
 import xlrd
 
 __author__ = 'peter'
@@ -24,6 +26,9 @@ __author__ = 'peter'
 
 def main():
     args = docopt(__doc__)
+
+    signal.signal(signal.SIGINT, lambda x, y: sys.exit(130))
+
     args = parse_args(args)
     flags = re.UNICODE
     if args['-i']:
