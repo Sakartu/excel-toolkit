@@ -2,16 +2,17 @@
 # -*- coding: utf8 -*-
 """
 Usage:
-exgrep [options] TERM (EXCEL_FILE... | -f INFILE)
+exgrep [options] (-f PATTERN_FILE | TERM) (EXCEL_FILE... | --read-from INFILE)
 
 Options:
-TERM        The term to grep for. Can be any valid (python) regular expression.
-EXCEL_FILE  The list of files to search through
--c COL      Only search in the column specified by COL (either a 1-based number or a letter)
--r ROW      Only search in the row specified by ROW
--o          Only output the matched part
--i          Perform a case-insensitive match
--f INFILE   A newline separated file containing path to Excel files to search
+TERM                The term to grep for. Can be any valid (python) regular expression.
+EXCEL_FILE          The list of files to search through
+-c COL              Only search in the column specified by COL (either a 1-based number or a letter)
+-r ROW              Only search in the row specified by ROW
+-o                  Only output the matched part
+-i                  Perform a case-insensitive match
+-f PATTERN_FILE     A newline separated file containing one pattern per line
+--read-from INFILE  A newline separated file containing the path to one Excel file to search per line
 """
 import os
 import re
@@ -34,20 +35,25 @@ def main():
     flags = re.UNICODE
     if args['-i']:
         flags |= re.IGNORECASE
-    p = re.compile(args['TERM'], flags)
+
     if args['-f']:
-        args['EXCEL_FILE'] = [x.strip() for x in open(args['-f'])]
+        ps = [re.compile(x.strip(), flags) for x in open(args['-f'])]
+    else:
+        ps = [args['TERM']]
+
+    if args['--read-from']:
+        args['EXCEL_FILE'] = [x.strip() for x in open(args['--read-from'])]
 
     for f in args['EXCEL_FILE']:
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
 
         if args['-c']:
-            check_row(args, f, p, sheet, int(args['-c']))
+            check_row(args, f, ps, sheet, int(args['-c']))
             continue
 
         for rownum in range(sheet.nrows):
-            check_row(args, f, p, sheet, rownum)
+            check_row(args, f, ps, sheet, rownum)
 
 
 def parse_args(args):
@@ -60,24 +66,27 @@ def parse_args(args):
     return args
 
 
-def check_row(args, f, p, sheet, rownum):
+def check_row(args, f, ps, sheet, rownum):
     """
     Check a row for the presence of pattern p.
     """
     for idx, v in enumerate(sheet.row_values(rownum)):
         if args['-c'] and idx != int(args['-c']):
             continue
-        s = p.search(str(v))
-        if s:
-            to_print = ''
-            if len(args['EXCEL_FILE']) > 1:
-                to_print += os.path.basename(f)
-            to_print += ':{0}: '.format(rownum + 1)
-            if args['-o']:
-                to_print += str(s.group(0))
-            else:
-                to_print += str(sheet.row_values(rownum))
-            print(to_print)
+        for p in ps:
+            s = p.search(str(v))
+            if s:
+                to_print = ''
+                if len(ps) > 1:
+                    to_print += '"{0}":'.format(p.pattern)
+                if len(args['EXCEL_FILE']) > 1:
+                    to_print += os.path.basename(f)
+                to_print += ':{0}: '.format(rownum + 1)
+                if args['-o']:
+                    to_print += str(s.group(0))
+                else:
+                    to_print += str(sheet.row_values(rownum))
+                print(to_print)
 
 
 if __name__ == '__main__':
