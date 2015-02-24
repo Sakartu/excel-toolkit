@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 """
 Usage:
-exgrep [options] TERM EXCEL_FILE...
+exgrep [options] TERM (EXCEL_FILE... | -f INFILE)
 
 Options:
 TERM        The term to grep for. Can be any valid (python) regular expression.
@@ -11,6 +11,7 @@ EXCEL_FILE  The list of files to search through
 -r ROW      Only search in the row specified by ROW
 -o          Only output the matched part
 -i          Perform a case-insensitive match
+-f INFILE   A newline separated file containing path to Excel files to search
 """
 import os
 import re
@@ -34,6 +35,9 @@ def main():
     if args['-i']:
         flags |= re.IGNORECASE
     p = re.compile(args['TERM'], flags)
+    if args['-f']:
+        args['EXCEL_FILE'] = [x.strip() for x in open(args['-f'])]
+
     for f in args['EXCEL_FILE']:
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
