@@ -2,13 +2,13 @@
 # -*- coding: utf8 -*-
 """
 Usage:
-exgrep [options] (-f PATTERN_FILE | TERM) (EXCEL_FILE... | --read-from INFILE)
+exgrep [-c COL]... [-r ROW]... [-oi] (-f PATTERN_FILE | TERM) (EXCEL_FILE... | --read-from INFILE)
 
 Options:
 TERM                The term to grep for. Can be any valid (python) regular expression.
 EXCEL_FILE          The list of files to search through
--c COL              Only search in the column specified by COL (either a 1-based number or a letter)
--r ROW              Only search in the row specified by ROW
+-c COL              Only search in the column specified by COL (either a 1-based number or a letter). Multiple -c's denote multiple columns.
+-r ROW              Only search in the row specified by ROW (1-based). Multiple -r's denote multiple rows.
 -o                  Only output the matched part
 -i                  Perform a case-insensitive match
 -f PATTERN_FILE     A newline separated file containing one pattern per line
@@ -40,16 +40,17 @@ def main():
     if args['-f']:
         ps = [re.compile(x.strip(), flags) for x in open(args['-f'])]
     else:
-        ps = [args['TERM']]
+        ps = [re.compile(args['TERM'])]
 
     if args['--read-from']:
         args['EXCEL_FILE'] = [x.strip() for x in open(args['--read-from'])]
 
     for f in args['EXCEL_FILE']:
-        if args['-r'] is not None:
-            workbook = xlrd.open_workbook(f)
-            sheet = workbook.sheet_by_index(0)
-            check_row(args, f, ps, args['-r'], sheet.row_values(args['-r']))
+        if args['-r']:
+            for r in args['-r']:
+                workbook = xlrd.open_workbook(f)
+                sheet = workbook.sheet_by_index(0)
+                check_row(args, f, ps, r, sheet.row_values(r))
             continue
         else:
             for idx, row in util.yield_rows(f):
@@ -57,20 +58,26 @@ def main():
 
 
 def parse_args(args):
-    if args['-c'] is not None:
+    l = []
+    for c in args['-c']:
         try:
-            args['-c'] = int(args['-c'])
-            args['-c'] -= 1  # fixed 1-based
+            l.append(int(c) - 1)
         except ValueError:
-            args['-c'] = string.ascii_lowercase.index(args['-c'].lower())
+            try:
+                l.append(string.ascii_lowercase.index(args['-c'].lower()))
+            except IndexError:
+                print(__doc__)
+                sys.exit()
+    args['-c'] = l
 
-    if args['-r'] is not None:
+    l = []
+    for r in args['-r']:
         try:
-            args['-r'] = int(args['-r'])
-            args['-r'] -= 1  # fixed 1-based
+            l.append(int(r) - 1)
         except ValueError:
-            print('-r argument must be a valid integer!')
+            print(__doc__)
             sys.exit(-1)
+    args['-r'] = l
 
     return args
 
@@ -79,22 +86,30 @@ def check_row(args, f, ps, idx, row):
     """
     Check a row for the presence of pattern p.
     """
-    for idx, v in enumerate(row):
-        if args['-c'] and idx != int(args['-c']):
+    for col_idx, col in enumerate(row):
+        if args['-c'] and col_idx not in args['-c']:
             continue
+
+        to_check = str(col)
+
         for p in ps:
-            s = p.search(str(v))
+            s = p.search(to_check)
             if s:
                 to_print = ''
+
                 if len(ps) > 1:
                     to_print += '"{0}":'.format(p.pattern)
+
                 if len(args['EXCEL_FILE']) > 1:
-                    to_print += os.path.basename(f)
-                to_print += ':{0}: '.format(rownum + 1)
+                    to_print += os.path.basename(f) + ':'
+
+                to_print += '{0}: '.format(idx + 1)
+
                 if args['-o']:
                     to_print += str(s.group(0))
                 else:
-                    to_print += str(v)
+                    to_print += str(row)
+
                 print(to_print)
 
 
