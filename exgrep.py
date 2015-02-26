@@ -57,31 +57,6 @@ def main():
                 check_row(args, f, ps, idx, row)
 
 
-def parse_args(args):
-    l = []
-    for c in args['-c']:
-        try:
-            l.append(int(c) - 1)
-        except ValueError:
-            try:
-                l.append(string.ascii_lowercase.index(args['-c'].lower()))
-            except IndexError:
-                print(__doc__)
-                sys.exit()
-    args['-c'] = l
-
-    l = []
-    for r in args['-r']:
-        try:
-            l.append(int(r) - 1)
-        except ValueError:
-            print(__doc__)
-            sys.exit(-1)
-    args['-r'] = l
-
-    return args
-
-
 def check_row(args, f, ps, idx, row):
     """
     Check a row for the presence of any of the patterns in ps
@@ -111,6 +86,31 @@ def check_row(args, f, ps, idx, row):
                     to_print += str(row)
 
                 print(to_print)
+
+
+def parse_args(args):
+    l = []
+    for c in args['-c']:
+        try:
+            l.append(int(c) - 1)
+        except ValueError:
+            try:
+                l.append(string.ascii_lowercase.index(args['-c'].lower()))
+            except IndexError:
+                print(__doc__)
+                sys.exit()
+    args['-c'] = l
+
+    l = []
+    for r in args['-r']:
+        try:
+            l.append(int(r) - 1)
+        except ValueError:
+            print(__doc__)
+            sys.exit(-1)
+    args['-r'] = l
+
+    return args
 
 
 if __name__ == '__main__':
