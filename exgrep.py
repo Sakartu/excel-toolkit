@@ -48,8 +48,8 @@ def main():
         workbook = xlrd.open_workbook(f)
         sheet = workbook.sheet_by_index(0)
 
-        if args['-c']:
-            check_row(args, f, ps, sheet, int(args['-c']))
+        if args['-r']:
+            check_row(args, f, ps, sheet, int(args['-r']))
             continue
 
         for rownum in range(sheet.nrows):
