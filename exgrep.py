@@ -40,7 +40,7 @@ def main():
     if args['-f']:
         ps = [re.compile(x.strip(), flags) for x in open(args['-f'])]
     else:
-        ps = [re.compile(args['TERM'])]
+        ps = [re.compile(args['TERM'], flags)]
 
     if args['--read-from']:
         args['EXCEL_FILE'] = [x.strip() for x in open(args['--read-from'])]
