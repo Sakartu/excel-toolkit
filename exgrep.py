@@ -84,7 +84,7 @@ def parse_args(args):
 
 def check_row(args, f, ps, idx, row):
     """
-    Check a row for the presence of pattern p.
+    Check a row for the presence of any of the patterns in ps
     """
     for col_idx, col in enumerate(row):
         if args['-c'] and col_idx not in args['-c']:
