@@ -22,6 +22,7 @@ from docopt import docopt
 import signal
 import sys
 import xlrd
+import util
 
 __author__ = 'peter'
 
@@ -45,32 +46,40 @@ def main():
         args['EXCEL_FILE'] = [x.strip() for x in open(args['--read-from'])]
 
     for f in args['EXCEL_FILE']:
-        workbook = xlrd.open_workbook(f)
-        sheet = workbook.sheet_by_index(0)
-
-        if args['-r']:
-            check_row(args, f, ps, sheet, int(args['-r']))
+        if args['-r'] is not None:
+            workbook = xlrd.open_workbook(f)
+            sheet = workbook.sheet_by_index(0)
+            check_row(args, f, ps, args['-r'], sheet.row_values(args['-r']))
             continue
-
-        for rownum in range(sheet.nrows):
-            check_row(args, f, ps, sheet, rownum)
+        else:
+            for idx, row in util.yield_rows(f):
+                check_row(args, f, ps, idx, row)
 
 
 def parse_args(args):
-    if args['-c']:
+    if args['-c'] is not None:
         try:
-            int(args['-c'])
+            args['-c'] = int(args['-c'])
             args['-c'] -= 1  # fixed 1-based
         except ValueError:
             args['-c'] = string.ascii_lowercase.index(args['-c'].lower())
+
+    if args['-r'] is not None:
+        try:
+            args['-r'] = int(args['-r'])
+            args['-r'] -= 1  # fixed 1-based
+        except ValueError:
+            print('-r argument must be a valid integer!')
+            sys.exit(-1)
+
     return args
 
 
-def check_row(args, f, ps, sheet, rownum):
+def check_row(args, f, ps, idx, row):
     """
     Check a row for the presence of pattern p.
     """
-    for idx, v in enumerate(sheet.row_values(rownum)):
+    for idx, v in enumerate(row):
         if args['-c'] and idx != int(args['-c']):
             continue
         for p in ps:
@@ -85,7 +94,7 @@ def check_row(args, f, ps, sheet, rownum):
                 if args['-o']:
                     to_print += str(s.group(0))
                 else:
-                    to_print += str(sheet.row_values(rownum))
+                    to_print += str(v)
                 print(to_print)
 
 
