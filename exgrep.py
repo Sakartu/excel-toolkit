@@ -95,7 +95,7 @@ def parse_args(args):
             l.append(int(c) - 1)
         except ValueError:
             try:
-                l.append(string.ascii_lowercase.index(args['-c'].lower()))
+                l.append(string.ascii_lowercase.index(c.lower()))
             except IndexError:
                 print(__doc__)
                 sys.exit()
