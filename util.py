@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+import string
+import sys
 import xlrd
 
 __author__ = 'peter'
@@ -25,3 +27,10 @@ def yield_rows(infile, skipfirst=False, count=None, sheet=0):
     while rownum < count:
         yield rownum, sheet.row_values(rownum)
         rownum += 1
+
+
+def col_index(c):
+    try:
+        return int(c) - 1
+    except ValueError:
+        return string.ascii_lowercase.index(c.lower())

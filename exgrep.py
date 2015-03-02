@@ -92,13 +92,10 @@ def parse_args(args):
     l = []
     for c in args['-c']:
         try:
-            l.append(int(c) - 1)
-        except ValueError:
-            try:
-                l.append(string.ascii_lowercase.index(c.lower()))
-            except IndexError:
-                print(__doc__)
-                sys.exit()
+            l.append(util.col_index(c))
+        except IndexError:
+            print(__doc__)
+            sys.exit(-1)
     args['-c'] = l
 
     l = []
