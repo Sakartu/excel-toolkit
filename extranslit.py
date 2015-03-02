@@ -8,7 +8,7 @@ Options:
 INCOLUMN            The number of the INCOLUMN to use, 1 based (A=1).
 OUTCOLUMN           The number of the OUTCOLUMN to put the result in (WILL OVERWRITE ALL VALUES), 1 based (A=1).
 --minlen MINLEN     The minimal length of values in the INCOLUMN to be a candidate for transliteration. [default: 0]
---lang LANG         The language to use, Ukraine by default. [default: uk]
+--lang LANG         The language to use, Russian by default. [default: ru]
 --reverse           Go from foreign alphabet to latin, instead of the other way around
 INFILE              A list of infiles to process.
 """
