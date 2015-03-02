@@ -16,7 +16,6 @@ EXCEL_FILE          The list of files to search through
 """
 import os
 import re
-import string
 
 from docopt import docopt
 import signal

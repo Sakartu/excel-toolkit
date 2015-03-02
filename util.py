@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import string
-import sys
 import xlrd
 
 __author__ = 'peter'
